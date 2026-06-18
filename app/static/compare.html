@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <title>ResNet18 Karşılaştırma</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.12);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #555;
+            margin-bottom: 25px;
+        }
+
+        .upload-box {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        input, button {
+            font-size: 16px;
+            padding: 10px;
+        }
+
+        button {
+            cursor: pointer;
+            border: none;
+            background: #2563eb;
+            color: white;
+            border-radius: 8px;
+            margin-left: 10px;
+        }
+
+        .preview {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .preview img {
+            max-width: 300px;
+            max-height: 250px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .card {
+            border-radius: 14px;
+            padding: 20px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .card h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .item {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+            font-size: 17px;
+        }
+
+        .item:first-child {
+            font-weight: bold;
+            color: #166534;
+            font-size: 19px;
+        }
+
+        .note {
+            margin-top: 25px;
+            padding: 15px;
+            background: #eef2ff;
+            border-radius: 12px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Hazır ResNet18 ve Fine-Tuned ResNet18 Karşılaştırması</h1>
+    <p class="subtitle">
+        Aynı görüntü iki modele verilerek ImageNet tabanlı hazır model ile Flowers102 üzerinde eğitilmiş model karşılaştırılır.
+    </p>
+
+    <div class="upload-box">
+        <input type="file" id="imageInput" accept="image/png, image/jpeg">
+        <button onclick="compareModels()">Karşılaştır</button>
+    </div>
+
+    <div class="preview" id="preview"></div>
+
+    <div class="results">
+        <div class="card">
+            <h2>Hazır ResNet18<br><small>ImageNet / 1000 sınıf</small></h2>
+            <div id="pretrainedResults"></div>
+        </div>
+
+        <div class="card">
+            <h2>Benim Fine-Tuned ResNet18 Modelim<br><small>Flowers102 / 102 çiçek sınıfı</small></h2>
+            <div id="finetunedResults"></div>
+        </div>
+    </div>
+
+    <div class="note">
+        Hazır ResNet18 genel ImageNet sınıfları üzerinden tahmin üretir. Fine-tuned model ise Flowers102 veri setine uyarlanmış olduğu için çiçek sınıfları üzerinden tahmin üretir.
+    </div>
+</div>
+
+<script>
+async function compareModels() {
+    const fileInput = document.getElementById("imageInput");
+    const file = fileInput.files[0];
+
+    if (!file) {
+        alert("Lütfen bir görsel seçin.");
+        return;
+    }
+
+    const preview = document.getElementById("preview");
+    preview.innerHTML = `<img src="${URL.createObjectURL(file)}">`;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    document.getElementById("pretrainedResults").innerHTML = "Yükleniyor...";
+    document.getElementById("finetunedResults").innerHTML = "Yükleniyor...";
+
+    const response = await fetch("/compare-models", {
+        method: "POST",
+        body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        alert("Hata: " + data.detail);
+        return;
+    }
+
+    const pretrained = data.result.pretrained_resnet18;
+    const finetuned = data.result.finetuned_resnet18;
+
+    document.getElementById("pretrainedResults").innerHTML =
+        pretrained.map((r, i) =>
+            `<div class="item">${i + 1}. ${r.label} - Güven: ${r.confidence}</div>`
+        ).join("");
+
+    document.getElementById("finetunedResults").innerHTML =
+        finetuned.map((r, i) =>
+            `<div class="item">${i + 1}. ${r.label} - Güven: ${r.confidence}</div>`
+        ).join("");
+}
+</script>
+
+</body>
+</html>

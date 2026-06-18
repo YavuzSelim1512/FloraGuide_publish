@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>FloraGuide</title>
+  <link rel="stylesheet" href="/static/styles/app.css" />
+</head>
+<body>
+  <main class="container">
+    <section class="card hero">
+      <h1>🌿 FloraGuide</h1>
+      <p class="subtitle">AI destekli bitki tanıma ve bakım önerisi sistemi</p>
+      <p class="desc">
+        Bir çiçek fotoğrafı yükleyin. Sistem bitkiyi tanısın ve sizin için bakım önerisini göstersin.
+      </p>
+    </section>
+
+    <section class="card upload-card">
+      <label class="file-label" for="fileInput">Fotoğraf Seç</label>
+      <input id="fileInput" type="file" accept="image/png,image/jpeg" />
+      <button id="btn">Bitkiyi Tanı</button>
+      <p id="status" class="status"></p>
+    </section>
+
+    <section id="previewCard" class="card preview-card hidden">
+      <h3>Yüklenen Fotoğraf</h3>
+      <img id="previewImage" alt="Yüklenen bitki fotoğrafı" />
+    </section>
+
+    <section id="result" class="card result-card hidden">
+      <h2>Analiz Sonucu</h2>
+
+      <div class="result-grid">
+        <div class="result-box">
+          <span class="label">Tahmin Edilen Bitki</span>
+          <span id="plant" class="value">-</span>
+        </div>
+
+        <div class="result-box">
+          <span class="label">Kullanılan Model</span>
+          <span id="model" class="value">-</span>
+        </div>
+      </div>
+
+      <div class="care-box">
+        <h3>Bakım Önerisi</h3>
+        <p id="careText">-</p>
+      </div>
+    </section>
+  </main>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
